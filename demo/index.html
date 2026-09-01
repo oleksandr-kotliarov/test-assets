@@ -28,6 +28,10 @@
     pre { min-height: 92px; margin: 0; overflow: auto; padding: 18px 72px 18px 18px; color: #dbeafe; font-size: 12px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
     .copy { position: absolute; top: 12px; right: 12px; border: 1px solid #475569; border-radius: 7px; padding: 6px 9px; background: #1e293b; color: #fff; font: inherit; font-size: 12px; cursor: pointer; }
     .copy:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+    .asset-url { margin: 0; border-top: 1px solid #e2e8f0; padding: 13px 18px; color: #64748b; font-size: 12px; line-height: 1.5; }
+    .asset-url a { color: #4338ca; overflow-wrap: anywhere; }
+    .asset-url a:hover { color: #312e81; }
+    .asset-url a:focus-visible { border-radius: 3px; outline: 3px solid #f59e0b; outline-offset: 2px; }
     .events { grid-column: 1 / -1; padding: 20px; }
     .events p { margin: 6px 0 14px; color: #64748b; }
     #event-log { min-height: 72px; max-height: 180px; overflow: auto; margin: 0; border-radius: 10px; padding: 14px; background: #0f172a; color: #a7f3d0; font: 12px/1.55 "SFMono-Regular", Consolas, monospace; white-space: pre-wrap; }
@@ -47,24 +51,28 @@
       <div class="example-head"><span class="kind">Iframe 1</span><h2>Fixed content</h2></div>
       <div class="preview"><iframe id="basic-frame" title="Basic iframe example"></iframe></div>
       <div class="snippet"><pre><code id="basic-code"></code></pre><button class="copy" data-copy="basic-code" type="button">Copy</button></div>
+      <p class="asset-url">URL: <a id="basic-url"></a></p>
     </article>
 
     <article class="example">
       <div class="example-head"><span class="kind">Iframe 2</span><h2>Messaging &amp; resize</h2></div>
       <div class="preview"><iframe id="interactive-frame" title="Interactive iframe example"></iframe></div>
       <div class="snippet"><pre><code id="interactive-code"></code></pre><button class="copy" data-copy="interactive-code" type="button">Copy</button></div>
+      <p class="asset-url">URL: <a id="interactive-url"></a></p>
     </article>
 
     <article class="example">
       <div class="example-head"><span class="kind">Widget 1</span><h2>Status card</h2></div>
       <div class="preview" id="status-preview"></div>
       <div class="snippet"><pre><code id="status-code"></code></pre><button class="copy" data-copy="status-code" type="button">Copy</button></div>
+      <p class="asset-url">URL: <a id="status-url"></a></p>
     </article>
 
     <article class="example">
       <div class="example-head"><span class="kind">Widget 2</span><h2>Feedback prompt</h2></div>
       <div class="preview" id="feedback-preview"></div>
       <div class="snippet"><pre><code id="feedback-code"></code></pre><button class="copy" data-copy="feedback-code" type="button">Copy</button></div>
+      <p class="asset-url">URL: <a id="feedback-url"></a></p>
     </article>
 
     <section class="example events">
@@ -106,6 +114,19 @@
 
     Object.entries(snippets).forEach(([id, value]) => {
       document.getElementById(id).textContent = value;
+    });
+
+    const urls = {
+      'basic-url': basicUrl,
+      'interactive-url': interactiveUrl,
+      'status-url': statusUrl,
+      'feedback-url': feedbackUrl
+    };
+
+    Object.entries(urls).forEach(([id, value]) => {
+      const link = document.getElementById(id);
+      link.href = value;
+      link.textContent = value;
     });
 
     function appendWidget(containerId, src, attributes) {
