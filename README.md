@@ -7,6 +7,14 @@ Four dependency-free embeds for testing integration on another website:
 - `widgets/status.js` — a configurable status card
 - `widgets/feedback.js` — an interactive feedback prompt that emits a browser event
 
+## Hosted URLs
+
+- Demo: https://oleksandr-kotliarov.github.io/test-assets/demo/
+- Basic iframe: https://oleksandr-kotliarov.github.io/test-assets/iframes/basic.html
+- Interactive iframe: https://oleksandr-kotliarov.github.io/test-assets/iframes/interactive.html
+- Status widget: https://oleksandr-kotliarov.github.io/test-assets/widgets/status.js
+- Feedback widget: https://oleksandr-kotliarov.github.io/test-assets/widgets/feedback.js
+
 ## Run locally
 
 Serve the repository root:
