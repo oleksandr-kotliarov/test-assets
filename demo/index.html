@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Embed examples</title>
+  <style>
+    :root { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #172033; background: #eef2f7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    header { padding: 42px max(20px, calc((100vw - 1120px) / 2)); background: #111827; color: #fff; }
+    header p { max-width: 720px; margin: 10px 0 0; color: #cbd5e1; line-height: 1.55; }
+    code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    .base { margin-top: 16px; font-size: 13px; }
+    .base code { overflow-wrap: anywhere; color: #93c5fd; }
+    main { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; max-width: 1160px; margin: 0 auto; padding: 28px 20px 56px; }
+    .example { min-width: 0; overflow: hidden; border: 1px solid #d8e0eb; border-radius: 18px; background: #fff; box-shadow: 0 12px 28px rgb(15 23 42 / 6%); }
+    .example-head { padding: 20px 20px 0; }
+    h1, h2 { margin: 0; }
+    h1 { font-size: clamp(28px, 5vw, 42px); }
+    h2 { font-size: 20px; }
+    .kind { display: inline-block; margin-bottom: 8px; color: #4f46e5; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .preview { min-height: 150px; padding: 20px; }
+    iframe { display: block; width: 100%; border: 0; border-radius: 12px; background: #f8fafc; }
+    #basic-frame { height: 180px; }
+    #interactive-frame { height: 230px; transition: height .2s ease; }
+    .snippet { position: relative; border-top: 1px solid #e2e8f0; background: #0f172a; }
+    pre { min-height: 92px; margin: 0; overflow: auto; padding: 18px 72px 18px 18px; color: #dbeafe; font-size: 12px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+    .copy { position: absolute; top: 12px; right: 12px; border: 1px solid #475569; border-radius: 7px; padding: 6px 9px; background: #1e293b; color: #fff; font: inherit; font-size: 12px; cursor: pointer; }
+    .copy:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+    .events { grid-column: 1 / -1; padding: 20px; }
+    .events p { margin: 6px 0 14px; color: #64748b; }
+    #event-log { min-height: 72px; max-height: 180px; overflow: auto; margin: 0; border-radius: 10px; padding: 14px; background: #0f172a; color: #a7f3d0; font: 12px/1.55 "SFMono-Regular", Consolas, monospace; white-space: pre-wrap; }
+    @media (max-width: 760px) { main { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="kind">External host harness</span>
+    <h1>Iframe &amp; widget examples</h1>
+    <p>This page behaves like a consuming website. Set <code>?assetBase=http://localhost:8000</code> to load all four embeds from another origin.</p>
+    <div class="base">Asset base: <code id="asset-base"></code></div>
+  </header>
+
+  <main>
+    <article class="example">
+      <div class="example-head"><span class="kind">Iframe 1</span><h2>Fixed content</h2></div>
+      <div class="preview"><iframe id="basic-frame" title="Basic iframe example"></iframe></div>
+      <div class="snippet"><pre><code id="basic-code"></code></pre><button class="copy" data-copy="basic-code" type="button">Copy</button></div>
+    </article>
+
+    <article class="example">
+      <div class="example-head"><span class="kind">Iframe 2</span><h2>Messaging &amp; resize</h2></div>
+      <div class="preview"><iframe id="interactive-frame" title="Interactive iframe example"></iframe></div>
+      <div class="snippet"><pre><code id="interactive-code"></code></pre><button class="copy" data-copy="interactive-code" type="button">Copy</button></div>
+    </article>
+
+    <article class="example">
+      <div class="example-head"><span class="kind">Widget 1</span><h2>Status card</h2></div>
+      <div class="preview" id="status-preview"></div>
+      <div class="snippet"><pre><code id="status-code"></code></pre><button class="copy" data-copy="status-code" type="button">Copy</button></div>
+    </article>
+
+    <article class="example">
+      <div class="example-head"><span class="kind">Widget 2</span><h2>Feedback prompt</h2></div>
+      <div class="preview" id="feedback-preview"></div>
+      <div class="snippet"><pre><code id="feedback-code"></code></pre><button class="copy" data-copy="feedback-code" type="button">Copy</button></div>
+    </article>
+
+    <section class="example events">
+      <h2>Received events</h2>
+      <p>Interactions from the messaging iframe and feedback widget appear here.</p>
+      <div id="event-log" role="log" aria-live="polite">Waiting for events…</div>
+    </section>
+  </main>
+
+  <script>
+    const requestedBase = new URLSearchParams(location.search).get('assetBase');
+    let assetBase;
+    try {
+      assetBase = new URL(requestedBase || '../', location.href);
+    } catch {
+      assetBase = new URL('../', location.href);
+    }
+    assetBase.pathname = assetBase.pathname.replace(/\/$/, '') + '/';
+    assetBase.search = '';
+    assetBase.hash = '';
+
+    const assetUrl = path => new URL(path, assetBase).href;
+    const expectedOrigin = assetBase.origin;
+    const basicUrl = assetUrl('iframes/basic.html?title=Embedded%20on%20another%20site');
+    const interactiveUrl = assetUrl('iframes/interactive.html?id=demo-interactive');
+    const statusUrl = assetUrl('widgets/status.js');
+    const feedbackUrl = assetUrl('widgets/feedback.js');
+
+    document.querySelector('#asset-base').textContent = assetBase.href.replace(/\/$/, '');
+    document.querySelector('#basic-frame').src = basicUrl;
+    document.querySelector('#interactive-frame').src = interactiveUrl;
+
+    const snippets = {
+      'basic-code': `<iframe src="${basicUrl}" title="Service overview" style="width:100%;height:180px;border:0"></iframe>`,
+      'interactive-code': `<iframe id="my-interactive-frame" src="${interactiveUrl}" title="Interactive example" style="width:100%;height:230px;border:0"></iframe>\n<script>\n  const frame = document.querySelector('#my-interactive-frame');\n  window.addEventListener('message', event => {\n    if (event.origin !== '${expectedOrigin}' || event.source !== frame.contentWindow) return;\n    if (event.data?.source === 'test-assets' && event.data.type === 'iframe:resize') {\n      frame.style.height = event.data.height + 'px';\n    }\n  });\n<\/script>`,
+      'status-code': `<script src="${statusUrl}" data-label="API status" data-status="operational" data-theme="light"><\/script>`,
+      'feedback-code': `<script src="${feedbackUrl}" data-question="Was this page helpful?" data-theme="light"><\/script>`
+    };
+
+    Object.entries(snippets).forEach(([id, value]) => {
+      document.getElementById(id).textContent = value;
+    });
+
+    function appendWidget(containerId, src, attributes) {
+      const script = document.createElement('script');
+      script.src = src;
+      Object.entries(attributes).forEach(([name, value]) => script.dataset[name] = value);
+      document.getElementById(containerId).append(script);
+    }
+
+    appendWidget('status-preview', statusUrl, { label: 'API status', status: 'operational', theme: 'light' });
+    appendWidget('feedback-preview', feedbackUrl, { question: 'Was this page helpful?', theme: 'light' });
+
+    const logElement = document.querySelector('#event-log');
+    const entries = [];
+    function log(label, detail) {
+      entries.unshift(`${new Date().toLocaleTimeString()}  ${label}  ${JSON.stringify(detail)}`);
+      logElement.textContent = entries.slice(0, 20).join('\n');
+    }
+
+    window.addEventListener('message', event => {
+      if (event.origin !== expectedOrigin || event.source !== document.querySelector('#interactive-frame').contentWindow) return;
+      const message = event.data;
+      if (!message || message.source !== 'test-assets' || message.iframeId !== 'demo-interactive') return;
+
+      if (message.type === 'iframe:resize' && Number.isFinite(message.height)) {
+        document.querySelector('#interactive-frame').style.height = `${Math.max(120, message.height)}px`;
+      }
+      log(message.type, message);
+    });
+
+    document.addEventListener('test-widget:feedback', event => {
+      log('test-widget:feedback', event.detail);
+    });
+
+    document.querySelectorAll('.copy').forEach(button => {
+      button.addEventListener('click', async () => {
+        const text = document.getElementById(button.dataset.copy).textContent;
+        try {
+          await navigator.clipboard.writeText(text);
+          button.textContent = 'Copied';
+          setTimeout(() => { button.textContent = 'Copy'; }, 1200);
+        } catch {
+          button.textContent = 'Select code';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
