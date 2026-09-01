@@ -12,7 +12,7 @@
   const root = host.attachShadow({ mode: 'open' });
   root.innerHTML = `
     <style>
-      :host { display: block; max-width: 420px; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+      :host { display: block; width: 100%; max-width: 420px; pointer-events: auto; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
       * { box-sizing: border-box; }
       .card { padding: 18px; border: 1px solid var(--border); border-radius: 14px; background: var(--background); color: var(--text); }
       .light { --background: #fff; --border: #dbe2ee; --text: #172033; --muted: #64748b; --button: #f1f5f9; --hover: #e2e8f0; }
@@ -45,7 +45,34 @@
     }));
   });
 
-  script.insertAdjacentElement('afterend', host);
+  mountWidget(host);
+
+  function mountWidget(widget) {
+    const mount = () => {
+      let dock = document.querySelector('[data-test-widget-dock]');
+      if (!dock) {
+        dock = document.createElement('div');
+        dock.dataset.testWidgetDock = '';
+        Object.assign(dock.style, {
+          position: 'fixed',
+          right: 'max(16px, env(safe-area-inset-right))',
+          bottom: 'max(16px, env(safe-area-inset-bottom))',
+          zIndex: '2147483000',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          gap: '12px',
+          width: 'min(420px, calc(100vw - 32px))',
+          pointerEvents: 'none'
+        });
+        document.body.append(dock);
+      }
+      dock.append(widget);
+    };
+
+    if (document.body) mount();
+    else document.addEventListener('DOMContentLoaded', mount, { once: true });
+  }
 
   function escapeHtml(value) {
     return value.replace(/[&<>'"]/g, character => ({

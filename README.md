@@ -94,4 +94,4 @@ document.addEventListener('test-widget:feedback', event => {
 });
 ```
 
-Each script tag creates one widget. Add the script more than once to create independent instances. Widget styles live in Shadow DOM so host-page CSS does not leak into them.
+Each script tag creates one widget. Add the script more than once to create independent instances. Widgets are fixed to a shared dock in the bottom-right corner and stack vertically when more than one is present. Widget styles live in Shadow DOM so host-page CSS does not leak into them.
